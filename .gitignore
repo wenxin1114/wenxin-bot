@@ -25,7 +25,6 @@ out/
 # 忽略操作系统文件
 .DS_Store
 Thumbs.db
-
 # 忽略 IDE 配置文件
 .idea/
 .vscode/
@@ -36,8 +35,9 @@ Thumbs.db
 *.sw?
 
 # 忽略 npm/yarn 锁文件（根据你的包管理工具选择）
-# package-lock.json
-# yarn.lock
+yarn.lock
+package-lock.json  # 如果使用 pnpm，忽略这个文件
+!pnpm-lock.yaml   # 不忽略 pnpm 的锁文件
 
 # 忽略测试覆盖目录
 coverage/
