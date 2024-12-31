@@ -1,0 +1,52 @@
+# 忽略依赖目录
+node_modules/
+
+# 忽略日志文件
+*.log
+
+# 忽略调试日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 忽略环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 忽略构建输出目录
+dist/
+build/
+out/
+
+# 忽略缓存目录
+.cache/
+
+# 忽略操作系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略 IDE 配置文件
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 忽略 npm/yarn 锁文件（根据你的包管理工具选择）
+# package-lock.json
+# yarn.lock
+
+# 忽略测试覆盖目录
+coverage/
+.nyc_output/
+
+# 忽略临时文件
+tmp/
+temp/
+
+# 忽略 TypeScript 编译输出
+*.js.map
+*.d.ts
