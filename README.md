@@ -123,11 +123,11 @@ napcat-bot/
 
 ## 作者
 
-你的名字 - [@你的GitHub用户名](https://github.com/yourusername)
+问心 - [@wenxin](https://github.com/wenxin1114)
 
 ## 致谢
 
-本项目基于以下开源项目开发：
+本项目基于以下项目开发：
 
 - [NapCatQQ](https://github.com/NapNeko/NapCatQQ) - 现代化的基于 NTQQ 的 Bot 协议端实现
 - [node-napcat-ts](https://github.com/huankong-team/node-napcat-ts) - NapCat 的 Node.js SDK
