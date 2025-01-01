@@ -65,18 +65,8 @@ export class CommandHandler {
         let content = "===== 命令菜单 =====\n";
         content += "/菜单 - 显示此菜单\n";
         content += "/模型 模型名 [系统提示] - 查看/切换模型\n";
-        content += "/问 问题 - 向当前模型提问\n\n";
+        content += "/问 问题 - 向当前模型提问";
         
-        content += "===== 当前配置 =====\n";
-        content += `当前模型：${this.modelManager.getCurrentModel()}\n`;
-        content += `系统提示：${this.modelManager.getSystemPrompt()}\n\n`;
-        
-        content += "===== 可用模型 =====\n";
-        const currentModel = this.modelManager.getCurrentModel();
-        this.modelManager.getAvailableModels().forEach(model => {
-            content += `${model === currentModel ? '*' : ' '}${model}\n`;
-        });
-
         await this.sendGroupMessage(group_id, content);
     }
 

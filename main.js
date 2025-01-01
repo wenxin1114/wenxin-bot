@@ -4,18 +4,7 @@ import { ModelManager } from "./utils/ModelManager.js";
 import { CommandHandler } from "./utils/CommandHandler.js";
 
 const napcat = new NCWebsocket(
-    {
-        protocol: "ws",
-        host: "127.0.0.1",
-        port: 3001,
-        accessToken: "yiajh9khafj",
-        throwPromise: true,
-        reconnection: {
-            enable: true,
-            attempts: 10,
-            delay: 5000,
-        },
-    },
+    config.napcat,
     false
 );
 
