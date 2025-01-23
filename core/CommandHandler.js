@@ -18,7 +18,6 @@ export class CommandHandler {
 
   
   async handleCommand(command, args, context) {
-    console.log(this.config)
     const { user_id } = context;
     if (!this.config.bot.state && user_id != this.config.bot.master) {
       return false;
@@ -106,8 +105,12 @@ export class CommandHandler {
 
   async handleNewsCommand(args, context) {
     const { group_id } = context;
-    await generateImage();
-    await this.sendGroupMessage(group_id, null, ["dailyNews.png", "dailyNews.png"]);
+    const image = await generateImage();
+    if (image) {
+      await this.sendGroupMessage(group_id, null, ["base64://" + image, "dailyNews.png"]);
+    } else {
+      await this.sendGroupMessage(group_id, "获取失败");
+    }
   }
 
   async sendGroupMessage(group_id, content=null, image=null) {

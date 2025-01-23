@@ -22,7 +22,6 @@ napcat.on("close", () => {
 
 napcat.on("message.group", async (context) => {
     try {
-        console.log("收到群消息:", context);
         const { message: msg_list } = context;
         for (const message of msg_list) {
             if (message.type === "text") {

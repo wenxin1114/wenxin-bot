@@ -4,9 +4,6 @@ import axios from 'axios';
 // 定义 API URL
 const API_URL = 'https://news.topurl.cn/api';
 
-// 定义输出图片路径
-const OUTPUT_IMAGE = 'dailyNews.png';
-
 // 获取数据并生成图片
 export async function generateImage() {
     try {
@@ -134,18 +131,19 @@ export async function generateImage() {
             waitUntil: 'networkidle0', // 等待网络空闲
         });
 
-        // 生成图片
-        await page.screenshot({
-            path: OUTPUT_IMAGE,
+        // 直接生成 base64
+        const base64Image = await page.screenshot({
             fullPage: true,
             type: 'png',
+            encoding: 'base64'
         });
-
-        console.log(`图片已生成：${OUTPUT_IMAGE}`);
 
         // 关闭浏览器
         await browser.close();
+
+        return base64Image;
     } catch (error) {
         console.error('生成图片时出错：', error);
+        return null;
     }
 }
