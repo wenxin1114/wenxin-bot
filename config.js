@@ -1,6 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// 检查必需的环境变量
+const requiredEnvVars = [
+  'SPARK_API_KEY',
+  'DEEPSEEK_API_KEY',
+  'NAPCAT_ACCESS_TOKEN',
+  'NAPCAT_HOST',
+  'NAPCAT_PORT',
+  'BOT_MASTER'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`缺少必需的环境变量: ${envVar}`);
+  }
+}
+
 export const config = {
   currentModel: "spark",
   model: {
@@ -27,4 +43,8 @@ export const config = {
       delay: 5000,
     },
   },
+  bot: {
+    state: true,
+    master: process.env.BOT_MASTER
+  }
 };
