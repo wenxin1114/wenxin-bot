@@ -66,11 +66,6 @@ export async function generateImage() {
                     .news-item a:hover {
                         text-decoration: underline;
                     }
-                    .weather-info {
-                        background-color: #f0f0f0;
-                        padding: 15px;
-                        border-radius: 5px;
-                    }
                 </style>
             </head>
             <body>
@@ -101,18 +96,6 @@ export async function generateImage() {
                         <h2>新闻列表</h2>
                         <div id="news-list">
                             ${data.newsList.map(item => `<div class="news-item"><a href="${item.url}" target="_blank">${item.title}</a></div>`).join('')}
-                        </div>
-                    </div>
-
-                    <!-- 天气信息 -->
-                    <div class="section">
-                        <h2>天气预报</h2>
-                        <div class="weather-info">
-                            <p>城市：${data.weather.city}</p>
-                            <p>日期：${data.weather.detail.date}</p>
-                            <p>白天：${data.weather.detail.text_day}，温度：${data.weather.detail.low}℃ ~ ${data.weather.detail.high}℃</p>
-                            <p>晚上：${data.weather.detail.text_night}</p>
-                            <p>风向：${data.weather.detail.wind_direction}，风速：${data.weather.detail.wind_speed}m/s</p>
                         </div>
                     </div>
                 </div>

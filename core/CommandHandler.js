@@ -100,6 +100,7 @@ export class CommandHandler {
     content += "/菜单 - 显示此菜单\n";
     content += "/模型 模型名 [系统提示] - 查看/切换模型\n";
     content += "/问 问题 - 向当前模型提问";
+    content += "/今日新闻 - 获取今日新闻";
     await this.sendGroupMessage(group_id, content);
   }
 

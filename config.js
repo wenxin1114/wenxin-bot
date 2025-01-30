@@ -45,6 +45,6 @@ export const config = {
   },
   bot: {
     state: true,
-    master: process.env.BOT_MASTER
+    master: process.env.BOT_MASTER,
   }
 };

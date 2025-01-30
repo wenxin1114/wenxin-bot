@@ -13,11 +13,14 @@ A QQ group chat bot based on [NapCatQQ](https://github.com/NapNeko/NapCatQQ) and
 - Prompt Customization: Set independent system prompts for each model
 - User-Friendly: Intuitive command system for quick start
 
+### Prerequisites
+Before using NapCat Bot, you need to install [NapCatQQ](https://github.com/NapNeko/NapCatQQ). Follow the installation instructions provided in the NapCatQQ repository.
+
 ## Quick Start
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/napcat-bot.git
+git clone https://github.com/wenxin1114/napcat-bot.git
 cd napcat-bot
 pnpm install
 

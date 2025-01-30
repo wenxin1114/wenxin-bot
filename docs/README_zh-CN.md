@@ -9,6 +9,9 @@
 - 提示词定制：支持为每个模型设置独立的系统提示词
 - 简单易用：直观的命令系统，快速上手
 
+### 前置条件
+在使用 NapCat Bot 之前，你需要先安装 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)。请按照 NapCatQQ 仓库中的安装说明进行操作。
+
 ## 快速开始
 
 ### 1. 安装
