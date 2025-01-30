@@ -2,6 +2,8 @@
 
 [English](docs/README_en-US.md) | [简体中文](docs/README_zh-CN.md)
 
+⚠️ **IMPORTANT**: This bot requires [NapCatQQ](https://github.com/NapNeko/NapCatQQ) to be installed first. Please make sure to install NapCatQQ before proceeding with the setup below.
+
 A QQ group chat bot based on [NapCatQQ](https://github.com/NapNeko/NapCatQQ) and [node-napcat-ts](https://github.com/huankong-team/node-napcat-ts), supporting multiple AI models for conversation.
 
 [View Documentation →](docs/README_en-US.md)

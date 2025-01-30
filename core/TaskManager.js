@@ -28,9 +28,10 @@ export class TaskManager {
                 const image = await generateImage();
                 if (image) {
                     // 发送到所有配置的群
-                    for (const group_id of this.config.bot.newsGroups) {
+                    const group_list = await this.napcat.get_group_list(); 
+                    for (let group of group_list) {
                         await this.napcat.send_group_msg({
-                            group_id,
+                            group_id: group.group_id,
                             message: [
                                 {
                                     type: 'image',
