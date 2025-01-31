@@ -51,7 +51,13 @@ export class ModelManager {
             });
             
             const data = await response.json();
+            
             if (!response.ok) {
+                error('SPARK', '请求失败', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data
+                });
                 throw new Error(`星火API请求失败: ${data.message || response.statusText}`);
             }
             if (data.code === 0 && data.choices?.length > 0) {
@@ -63,6 +69,10 @@ export class ModelManager {
             }
             throw new Error('星火API返回异常');
         } catch (error) {
+            error('SPARK', '调用出错', {
+                error: error.message,
+                stack: error.stack
+            });
             throw new Error(`星火API错误: ${error.message}`);
         }
     }
