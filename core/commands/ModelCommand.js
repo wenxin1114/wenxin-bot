@@ -27,66 +27,101 @@ export class ModelCommand extends BaseCommand {
                 <html>
                 <head>
                     <style>
-                        html {
+                        * {
                             margin: 0;
                             padding: 0;
-                            background-color: #f5f6f7;
-                        }
-                        body {
-                            margin: 0;
-                            padding: 5px;
-                            font-family: Arial, sans-serif;
-                            width: 500px;  /* 保持宽一点，因为内容较多 */
-                            margin: 0 auto;
                             box-sizing: border-box;
+                        }
+                        html {
+                            background-color: #f5f6f7;
+                            min-height: 100%;
                             display: flex;
                             justify-content: center;
                             align-items: center;
                         }
-                        .container {
+                        body {
+                            width: 380px;
+                            padding: 6px;
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100%;
+                        }
+                        .card {
                             background: white;
-                            padding: 10px;
-                            border-radius: 12px;
-                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            padding: 12px;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
                             width: 100%;
                         }
                         .title {
-                            text-align: center;
-                            color: #333;
-                            margin-bottom: 20px;
+                            color: #1a73e8;
+                            font-size: 15px;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 6px;
                         }
-                        .model-list {
-                            margin-bottom: 20px;
+                        .title::before {
+                            content: "🤖";
+                            font-size: 16px;
+                        }
+                        .model-info {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .current-model {
+                            background: #e8f0fe;
+                            color: #1a73e8;
+                            padding: 6px 12px;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+                        .available-models {
+                            display: flex;
+                            flex-wrap: wrap;
+                            justify-content: center;
+                            gap: 6px;
                         }
                         .model-item {
-                            padding: 10px;
-                            border-bottom: 1px solid #eee;
-                        }
-                        .current {
-                            color: #1a73e8;
-                            font-weight: bold;
+                            background: #f8f9fa;
+                            color: #5f6368;
+                            padding: 4px 10px;
+                            border-radius: 4px;
+                            font-size: 13px;
                         }
                         .prompt {
-                            background: #f8f9fa;
-                            padding: 15px;
-                            border-radius: 5px;
-                            color: #666;
+                            text-align: center;
+                            color: #202124;
+                            font-size: 13px;
+                            line-height: 1.5;
+                            margin-top: 8px;
+                            padding-top: 8px;
+                            border-top: 2px solid #e8f0fe;
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="container">
-                        <h2 class="title">模型状态</h2>
-                        <div class="model-list">
-                            ${availableModels.map(model => `
-                                <div class="model-item ${model === currentModel ? 'current' : ''}">
-                                    ${model === currentModel ? '* ' : '  '}${model}
+                    <div class="card">
+                        <div class="title">AI 模型设置</div>
+                        <div class="model-info">
+                            <div class="current-model">当前模型：${currentModel}</div>
+                            <div class="available-models">
+                                ${availableModels.map(model => `
+                                    <div class="model-item">${model}</div>
+                                `).join('')}
+                            </div>
+                            ${currentSystemPrompt ? `
+                                <div class="prompt">
+                                    系统提示词：${currentSystemPrompt}
                                 </div>
-                            `).join('')}
-                        </div>
-                        <div class="prompt">
-                            <strong>系统提示：</strong><br>
-                            ${currentSystemPrompt}
+                            ` : ''}
                         </div>
                     </div>
                 </body>
@@ -133,19 +168,19 @@ export class ModelCommand extends BaseCommand {
                             align-items: center;
                         }
                         body {
-                            width: 300px;
-                            padding: 8px;
+                            width: 380px;
+                            padding: 6px;
                             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                             display: flex;
                             justify-content: center;
                             align-items: center;
+                            min-height: 100%;
                         }
                         .card {
                             background: white;
-                            padding: 16px;
-                            border-radius: 12px;
+                            padding: 12px;
+                            border-radius: 10px;
                             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                            text-align: center;
                             width: 100%;
                         }
                         .status {
