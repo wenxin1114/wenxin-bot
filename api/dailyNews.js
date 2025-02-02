@@ -4,6 +4,32 @@ import axios from 'axios';
 // 定义 API URL
 const API_URL = 'https://news.topurl.cn/api';
 
+// 获取每日新闻数据
+export async function getDailyNews() {
+    try {
+        const response = await axios.get(API_URL);
+        const data = response.data.data;
+        
+        if (!data?.newsList?.length) {
+            throw new Error('新闻数据为空');
+        }
+
+        return {
+            news: data.newsList.map(item => ({
+                title: item.title,
+                category: item.category
+            })),
+            history: data.historyList.map(item => item.event),
+            calendar: data.calendar,
+            weather: data.weather
+        };
+
+    } catch (error) {
+        console.error('获取新闻失败:', error);
+        return null;
+    }
+}
+
 // 获取数据并生成图片
 export async function generateImage() {
     try {

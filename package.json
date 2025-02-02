@@ -1,5 +1,12 @@
 {
+	"name": "napcat-bot",
+	"version": "1.0.0",
 	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js"
+	},
 	"dependencies": {
 		"axios": "^1.7.9",
 		"dotenv": "^16.4.7",
@@ -10,5 +17,8 @@
 		"puppeteer": "^24.1.1",
 		"winston": "^3.17.0",
 		"ws": "^8.18.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.9"
 	}
 }

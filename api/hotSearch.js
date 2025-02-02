@@ -1,10 +1,14 @@
+import { ApiService } from '../services/apiService.js';
+import { ImageService } from '../services/imageService.js';
 import puppeteer from 'puppeteer';
 
 export const getHotSearch = async (platform) => {
-    const response = await fetch(`https://newsnow.busiyi.world/api/s?id=${platform}`);
-    const data = await response.json();
-    return data;
-}
+    return await ApiService.request({
+        url: `https://newsnow.busiyi.world/api/s`,
+        method: 'GET',
+        params: { id: platform }
+    });
+};
 
 export async function generateHotSearchImage(data, platform) {
     try {

@@ -5,6 +5,8 @@ import { douyinParse } from "../api/douyinParse.js";
 import { log, error } from '../utils/logger.js';
 import { getHotSearch, generateHotSearchImage } from '../api/hotSearch.js';
 import { generateMenuImage } from '../api/menuImage.js';
+import { createCommands } from './commands/index.js';
+import { AppError, errorTypes } from '../utils/errorHandler.js';
 
 export class CommandHandler {
   constructor(napcat, modelManager, config) {
@@ -13,17 +15,7 @@ export class CommandHandler {
     this.config = config;
     
     // 命令处理器映射 - 使用 Map 确保唯一匹配
-    this.commands = new Map([
-      ['/菜单', this.handleMenuCommand.bind(this)],
-      ['/模型', this.handleModelCommand.bind(this)],
-      ['/问', this.handleChatCommand.bind(this)],
-      ['/清除', this.handleClearHistoryCommand.bind(this)],
-      ['/历史', this.handleHistoryCommand.bind(this)],
-      ['/抖音解析', this.handleDouyinCommand.bind(this)],
-      ['/关机', this.handleShutdown.bind(this)],
-      ['/开机', this.handleBootUp.bind(this)],
-      ['/今日新闻', this.handleNewsCommand.bind(this)]
-    ]);
+    this.commands = createCommands(napcat, modelManager, config);
 
     // 正则命令单独处理
     this.regexCommands = [
@@ -37,12 +29,6 @@ export class CommandHandler {
   async handleCommand(command, args, context) {
     // 如果不是以 / 开头，直接作为普通消息处理
     if (!command.startsWith('/')) {
-      log('MESSAGE', '收到群消息', {
-        group_id: context.group_id,
-        user_id: context.user_id,
-        sender: context.sender?.card || context.sender?.nickname,
-        content: command
-      });
       return false;
     }
 
@@ -65,27 +51,19 @@ export class CommandHandler {
     }
 
     try {
-      // 先检查精确匹配命令
-      const handler = this.commands.get(command);
+      // 查找匹配的命令
+      const handler = this.commands.find(cmd => cmd.matches(command));
       if (handler) {
-        await handler(args, context);
+        await handler.execute(args, context);
         return true;
       }
-
-      // 再检查正则匹配命令
-      const regexCommand = this.regexCommands.find(cmd => cmd.match.test(command));
-      if (regexCommand) {
-        await regexCommand.handler(args, context);
-        return true;
-      }
-
       return false;
     } catch (err) {
-      error('COMMAND', '命令执行失败', {
-        error: err.message,
-        stack: err.stack
-      });
-      return false;
+      throw new AppError(
+        errorTypes.COMMAND_ERROR,
+        '命令执行失败',
+        { command, error: err.message }
+      );
     }
   }
 

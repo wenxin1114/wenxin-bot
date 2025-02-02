@@ -9,6 +9,7 @@ export class ModelManager {
             deepSeek: this.handleDeepSeekChat.bind(this)
         };
         this.chatHistory = new ChatHistory();
+        this.currentModel = 'spark';
     }
 
     async handleSparkChat(message, userId, groupId) {
@@ -101,6 +102,12 @@ export class ModelManager {
                 messages: messages,
                 model: "deepseek-chat",
             });
+            if (!completion.choices || !completion.choices.length) {
+                error('DEEPSEEK', '请求失败', {
+                    data: completion
+                });
+                throw new Error('DeepSeek API返回异常');
+            }
 
             const responseContent = completion.choices[0].message.content;
             // 保存对话历史
@@ -113,9 +120,9 @@ export class ModelManager {
     }
 
     async chat(message, userId, groupId) {
-        const handler = this.modelHandlers[this.config.currentModel];
+        const handler = this.modelHandlers[this.currentModel];
         if (!handler) {
-            throw new Error(`未实现的模型接口: ${this.config.currentModel}`);
+            throw new Error(`未实现的模型接口: ${this.currentModel}`);
         }
         return await handler(message, userId, groupId);
     }
@@ -125,26 +132,29 @@ export class ModelManager {
         this.chatHistory.clearHistory(userId, groupId);
     }
 
+    getCurrentModel() {
+        return this.currentModel;
+    }
+
     getAvailableModels() {
         return Object.keys(this.config.model);
     }
 
-    getCurrentModel() {
-        return this.config.currentModel;
-    }
-
     getSystemPrompt() {
-        return this.config.model[this.config.currentModel].systemPrompt;
+        return this.config.model[this.currentModel]?.systemPrompt || "你是一个智能助手";
     }
 
     setSystemPrompt(prompt) {
-        this.config.model[this.config.currentModel].systemPrompt = prompt;
+        if (!this.currentModel) {
+            throw new Error('未选择模型');
+        }
+        this.config.model[this.currentModel].systemPrompt = prompt;
     }
 
     setModel(modelName) {
         if (!this.config.model[modelName]) {
             throw new Error(`未找到${modelName}模型`);
         }
-        this.config.currentModel = modelName;
+        this.currentModel = modelName;
     }
 } 

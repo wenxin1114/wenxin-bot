@@ -1,0 +1,12 @@
+{
+  "watch": [
+    "*.js",
+    "core/**/*.js",
+    "api/**/*.js",
+    "services/**/*.js",
+    "utils/**/*.js",
+    "config/**/*.js"
+  ],
+  "ignore": ["node_modules"],
+  "ext": "js"
+} 
