@@ -1,8 +1,23 @@
-# 忽略依赖目录
+# 依赖
 node_modules/
+.pnpm-store/
 
-# 忽略日志文件
+# 环境配置
+.env
+
+# 缓存
+cache/
 *.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
 
 # 忽略调试日志
 npm-debug.log*
@@ -10,7 +25,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # 忽略环境变量文件
-.env
 .env.local
 .env.*.local
 

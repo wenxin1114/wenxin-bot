@@ -1,4 +1,4 @@
-# NapCat Bot
+# Wenxin Bot
 
 ⚠️ **重要提示**：本机器人需要先安装 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)。请确保在进行以下设置之前已经完成 NapCatQQ 的安装。
 
@@ -19,8 +19,8 @@
 ### 1. 安装
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/napcat-bot.git
-cd napcat-bot
+git clone https://github.com/wenxin1114/wenxin-bot.git
+cd wenxin-bot
 
 # 安装依赖
 pnpm install
@@ -100,7 +100,7 @@ Bot: [图片]
 
 ## 项目结构
 ```
-napcat-bot/
+wenxin-bot/
 ├── main.js              # 入口文件
 ├── config.js            # 配置管理
 ├── utils/

@@ -1,11 +1,12 @@
 {
-	"name": "napcat-bot",
+	"name": "wenxin-bot",
 	"version": "1.0.0",
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
 		"start": "node index.js",
-		"dev": "nodemon index.js"
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"dependencies": {
 		"@types/marked": "^5.0.2",
@@ -22,5 +23,16 @@
 	},
 	"devDependencies": {
 		"nodemon": "^3.1.9"
-	}
+	},
+	"description": "基于 NapCatQQ 的多功能 QQ 机器人",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/wenxin1114/wenxin-bot.git"
+	},
+	"author": "Wenxin",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/wenxin1114/wenxin-bot/issues"
+	},
+	"homepage": "https://github.com/wenxin1114/wenxin-bot#readme"
 }

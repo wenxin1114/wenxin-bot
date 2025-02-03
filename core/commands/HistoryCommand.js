@@ -1,6 +1,6 @@
 import { BaseCommand } from './BaseCommand.js';
 import { generateHistoryImage } from '../../api/chatHistory.js';
-import { ImageService } from '../../services/ImageService.js';
+import { ImageService } from '../../services/imageService.js';
 
 export class HistoryCommand extends BaseCommand {
     constructor(napcat, modelManager) {

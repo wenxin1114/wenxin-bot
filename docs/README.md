@@ -1,4 +1,4 @@
-# NapCat Bot Documentation
+# Wenxin Bot Documentation
 
 Please choose your language:
 
