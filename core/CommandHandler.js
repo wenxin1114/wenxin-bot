@@ -49,6 +49,18 @@ export class CommandHandler {
       if (handler) {
         await handler.execute(args, context);
         return true;
+      } else {
+        // 没有匹配的命令
+        log('COMMAND', '没有匹配的命令', {
+          command,
+          args,
+          context: {
+            group_id: context.group_id,
+            user_id: context.user_id,
+            message_id: context.message_id,
+            sender: context.sender?.card || context.sender?.nickname
+          }
+        });
       }
       return false;
     } catch (err) {

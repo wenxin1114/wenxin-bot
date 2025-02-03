@@ -29,7 +29,7 @@ export class BaseCommand {
 
         const message = [];
         
-        // 添加回复引用 - 除非明确指定 noReply
+        // 添加回复引用
         if (context.message_id && !options.noReply) {
             log('MESSAGE', '添加回复引用', {
                 message_id: context.message_id,
@@ -59,13 +59,25 @@ export class BaseCommand {
             }
         }
 
-        // 添加图片 - 移除了 noReply 的判断，让图片消息也能有回复
+        // 添加图片
         if (options.image) {
             message.push({
                 type: 'image',
                 data: {
                     file: options.image,
-                    subType: "0"
+                }
+            });
+        }
+
+
+        // 添加视频
+        if (options.video) {
+            message.push({
+                type: 'video',
+                data: {
+                    file: options.video,
+                    name: options.name || '视频',
+                    thumb: options.cover || '',  // 可选的视频封面
                 }
             });
         }
@@ -76,6 +88,7 @@ export class BaseCommand {
             message_type: message.map(m => m.type).join(','),
             content_preview: content ? (typeof content === 'string' ? content.slice(0, 50) : '[复杂消息]') : '',
             has_image: !!options.image,
+            has_video: !!options.video,
             has_reply: !!(context.message_id && !options.noReply)
         });
 
