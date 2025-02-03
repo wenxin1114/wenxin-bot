@@ -4,8 +4,8 @@ import { ImageService } from '../../services/imageService.js';
 
 export class NewsCommand extends BaseCommand {
     constructor(napcat) {
-        super('/今日新闻', '获取每日新闻');
-        this.napcat = napcat;
+        super('/新闻', '查看每日新闻');
+        this.setNapcat(napcat);
     }
 
     async execute(args, context) {
@@ -201,16 +201,9 @@ export class NewsCommand extends BaseCommand {
                 </html>
             `;
 
-            const image = await ImageService.generateImage(htmlContent, { compact: true });
-            await this.napcat.send_group_msg({
-                group_id: context.group_id,
-                message: [{
-                    type: 'image',
-                    data: {
-                        file: "base64://" + image,
-                        subType: "0"
-                    }
-                }]
+            const image = await ImageService.generateImage(htmlContent);
+            await this.sendReply(context, null, { 
+                image: "base64://" + image
             });
         } catch (err) {
             throw new Error(`获取新闻失败：${err.message}`);

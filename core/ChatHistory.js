@@ -40,4 +40,28 @@ export class ChatHistory {
         }
         return history;
     }
+
+    getCache() {
+        const cache = {};
+        // 遍历所有历史记录
+        this.history.forEach((messages, key) => {
+            const [userId, groupId] = key.split('-');
+            if (!cache[userId]) {
+                cache[userId] = {};
+            }
+            cache[userId][groupId] = messages;
+        });
+        return cache;
+    }
+
+    loadFromCache(cache) {
+        this.history.clear();
+        // 恢复所有历史记录
+        Object.entries(cache).forEach(([userId, groups]) => {
+            Object.entries(groups).forEach(([groupId, messages]) => {
+                const key = `${userId}-${groupId}`;
+                this.history.set(key, messages);
+            });
+        });
+    }
 } 

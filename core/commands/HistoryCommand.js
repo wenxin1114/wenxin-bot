@@ -5,7 +5,7 @@ import { ImageService } from '../../services/ImageService.js';
 export class HistoryCommand extends BaseCommand {
     constructor(napcat, modelManager) {
         super('/历史', '查看聊天记录');
-        this.napcat = napcat;
+        this.setNapcat(napcat);
         this.modelManager = modelManager;
     }
 
@@ -17,10 +17,7 @@ export class HistoryCommand extends BaseCommand {
             );
 
             if (!history || history.length === 0) {
-                await this.napcat.send_group_msg({
-                    group_id: context.group_id,
-                    message: "暂无聊天记录"
-                });
+                await this.sendReply(context, "暂无聊天记录");
                 return;
             }
 
@@ -143,20 +140,10 @@ export class HistoryCommand extends BaseCommand {
                 </html>
             `;
 
-            const image = await ImageService.generateImage(htmlContent, { compact: true });
-
-            if (image) {
-                await this.napcat.send_group_msg({
-                    group_id: context.group_id,
-                    message: [{
-                        type: 'image',
-                        data: {
-                            file: "base64://" + image,
-                            subType: "0"
-                        }
-                    }]
-                });
-            }
+            const image = await ImageService.generateImage(htmlContent);
+            await this.sendReply(context, null, { 
+                image: "base64://" + image
+            });
         } catch (err) {
             throw new Error(`获取历史记录失败：${err.message}`);
         }

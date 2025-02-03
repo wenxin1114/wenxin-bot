@@ -4,8 +4,8 @@ import { ImageService } from '../../services/imageService.js';
 
 export class HotSearchCommand extends BaseCommand {
     constructor(napcat) {
-        super('/热搜', '获取热搜榜单');
-        this.napcat = napcat;
+        super('/热搜', '查看热搜榜单');
+        this.setNapcat(napcat);
     }
 
     matches(command) {
@@ -139,16 +139,9 @@ export class HotSearchCommand extends BaseCommand {
                 </html>
             `;
 
-            const image = await ImageService.generateImage(htmlContent, { compact: true });
-            await this.napcat.send_group_msg({
-                group_id: context.group_id,
-                message: [{
-                    type: 'image',
-                    data: {
-                        file: "base64://" + image,
-                        subType: "0"
-                    }
-                }]
+            const image = await ImageService.generateImage(htmlContent);
+            await this.sendReply(context, null, { 
+                image: "base64://" + image
             });
         } catch (err) {
             throw new Error(`获取${platformName}热搜失败：${err.message}`);

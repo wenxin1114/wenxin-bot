@@ -52,31 +52,26 @@ node main.js
 ### Basic Commands
 - `/menu` - Display all available commands
 - `/model` - View current model status
+- `/switch` - Quick switch between AI models
+- `/prompt <content>` - Set system prompt
 - `/ask <content>` - Ask the current model a question
+- `/image-ask <content>` - Display AI response as an image
 
 ### Model Management
 ```
-# View model list and current status
-/model
+# View model status
+/model                    # View current model status and available models
 
-# Switch to specific model
-/model spark
+# Switch models
+/switch spark          # Switch to spark model
+/switch deepSeek      # Switch to deepSeek model
 
-# Switch model and set system prompt
-/model deepSeek You are a cute catgirl assistant
-```
+# Set system prompt
+/prompt hello         # Set system prompt for current model
 
-### Example Conversation
-```
-User: /model
-Bot: ===== Models =====
-     *spark
-      deepSeek
-      
-     System Prompt: You are a knowledgeable friend...
-
-User: /ask How's the weather today?
-Bot: Sorry, as an AI assistant, I can't access real-time weather information...
+# Supported Models
+- spark (iFLYTEK Spark Cognitive Model)
+- deepSeek (DeepSeek AI)
 ```
 
 ## Project Structure

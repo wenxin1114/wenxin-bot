@@ -8,8 +8,10 @@
 		"dev": "nodemon index.js"
 	},
 	"dependencies": {
+		"@types/marked": "^5.0.2",
 		"axios": "^1.7.9",
 		"dotenv": "^16.4.7",
+		"marked": "^11.2.0",
 		"nanoid": "^5.0.9",
 		"node-napcat-ts": "^0.4.1",
 		"node-schedule": "^2.1.1",

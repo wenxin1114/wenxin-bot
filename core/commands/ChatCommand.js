@@ -3,7 +3,7 @@ import { BaseCommand } from './BaseCommand.js';
 export class ChatCommand extends BaseCommand {
     constructor(napcat, modelManager) {
         super('/问', '向当前模型提问');
-        this.napcat = napcat;
+        this.setNapcat(napcat);
         this.modelManager = modelManager;
     }
 
@@ -20,12 +20,10 @@ export class ChatCommand extends BaseCommand {
                 context.group_id
             );
 
-            await this.napcat.send_group_msg({
-                group_id: context.group_id,
-                message: response
-            });
+            await this.sendReply(context, response);
         } catch (err) {
-            throw new Error(`AI回答失败：${err.message}`);
+            const errorMessage = err instanceof Error ? err.message : '未知错误';
+            throw new Error(`AI回答失败：${errorMessage}`);
         }
     }
 } 

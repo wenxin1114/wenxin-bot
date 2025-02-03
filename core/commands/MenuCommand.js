@@ -3,8 +3,8 @@ import { ImageService } from '../../services/imageService.js';
 
 export class MenuCommand extends BaseCommand {
     constructor(napcat, config) {
-        super('/菜单', '显示此菜单');
-        this.napcat = napcat;
+        super('/菜单', '显示命令菜单');
+        this.setNapcat(napcat);
         this.config = config;
     }
 
@@ -107,7 +107,15 @@ export class MenuCommand extends BaseCommand {
                                 </div>
                                 <div class="command-item">
                                     <div class="command-name">/模型</div>
-                                    <div class="command-desc">查看/切换AI模型</div>
+                                    <div class="command-desc">查看当前模型状态</div>
+                                </div>
+                                <div class="command-item">
+                                    <div class="command-name">/切换</div>
+                                    <div class="command-desc">快速切换AI模型</div>
+                                </div>
+                                <div class="command-item">
+                                    <div class="command-name">/图问</div>
+                                    <div class="command-desc">以图片方式显示AI回答</div>
                                 </div>
                                 <div class="command-item">
                                     <div class="command-name">/清除</div>
@@ -116,6 +124,10 @@ export class MenuCommand extends BaseCommand {
                                 <div class="command-item">
                                     <div class="command-name">/历史</div>
                                     <div class="command-desc">查看聊天记录</div>
+                                </div>
+                                <div class="command-item">
+                                    <div class="command-name">/提示词</div>
+                                    <div class="command-desc">设置模型系统提示词</div>
                                 </div>
                             </div>
                         </div>
@@ -152,16 +164,9 @@ export class MenuCommand extends BaseCommand {
                 </html>
             `;
 
-            const image = await ImageService.generateImage(htmlContent, { compact: true });
-            await this.napcat.send_group_msg({
-                group_id: context.group_id,
-                message: [{
-                    type: 'image',
-                    data: {
-                        file: "base64://" + image,
-                        subType: "0"
-                    }
-                }]
+            const image = await ImageService.generateImage(htmlContent);
+            await this.sendReply(context, null, { 
+                image: "base64://" + image
             });
         } catch (err) {
             throw new Error(`生成菜单失败：${err.message}`);
