@@ -1,5 +1,7 @@
 # Wenxin Bot
 
+[English](./README_en-US.md) | 简体中文
+
 ⚠️ **重要提示**：本机器人需要先安装 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)。请确保在进行以下设置之前已经完成 NapCatQQ 的安装。
 
 一个基于 [NapCatQQ](https://github.com/NapNeko/NapCatQQ) 和 [node-napcat-ts](https://github.com/huankong-team/node-napcat-ts) 的 QQ 群聊机器人，支持多个 AI 模型的对话。

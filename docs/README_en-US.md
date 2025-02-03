@@ -1,5 +1,7 @@
 # Wenxin Bot
 
+[简体中文](./README_zh-CN.md) | English
+
 A QQ group chat bot based on [NapCatQQ](https://github.com/NapNeko/NapCatQQ) and [node-napcat-ts](https://github.com/huankong-team/node-napcat-ts), supporting multiple AI models for conversation.
 
 ## Features

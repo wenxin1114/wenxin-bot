@@ -1,6 +1,6 @@
 # Wenxin Bot
 
-[English](./README_EN.md) | 简体中文
+[English](./docs/README_en-US.md) | 简体中文
 
 ⚠️ **注意**: 本项目需要先安装 NapCatQQ。请在继续下面的步骤前确保已安装 NapCatQQ。
 
