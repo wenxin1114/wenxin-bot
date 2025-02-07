@@ -76,7 +76,6 @@ export class BaseCommand {
                 type: 'video',
                 data: {
                     file: options.video,
-                    name: options.name || '视频',
                     thumb: options.cover || '',  // 可选的视频封面
                 }
             });
