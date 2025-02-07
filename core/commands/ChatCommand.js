@@ -19,10 +19,10 @@ export class ChatCommand extends BaseCommand {
                 context.user_id,
                 context.group_id
             );
-
             await this.sendReply(context, response);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : '未知错误';
+            await this.sendReply(context, `AI回答失败：${errorMessage}`);
             throw new Error(`AI回答失败：${errorMessage}`);
         }
     }

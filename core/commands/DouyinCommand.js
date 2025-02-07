@@ -26,11 +26,13 @@ export class DouyinCommand extends BaseCommand {
             }
             result = result.data;
             // 发送解析状态
-            await this.sendReply(context, `视频解析成功，正在上传：\n${result.item.title}`);
+            await this.sendReply(context, `标题：${result.item.title}\n封面：${result.item.cover}\n链接：${result.item.ury}`);
+            // 暂不支持上传视频
+            return;
             // 上传视频
             try {
                 await this.sendReply(context, null, {
-                    video: result.item.url,
+                    video: result.item.ury,
                     cover: result.item.cover,
                     name: result.item.title,
                     noReply: true

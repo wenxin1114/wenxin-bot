@@ -1,5 +1,5 @@
 export class ChatHistory {
-    constructor(maxHistory = 10) {
+    constructor(maxHistory = 20) {
         // 使用 Map 存储每个用户的对话历史
         // key: user_id-group_id, value: message array
         this.history = new Map();
