@@ -12,10 +12,13 @@ export class DouyinCommand extends BaseCommand {
         console.log("执行");
         try {
             // 从消息中提取抖音链接
-            const url = args.join(' ') || context.raw_message;
+            let url = args.join(' ') || context.raw_message;
+            // 从文字中提取链接
+            url = url.match(/https?:\/\/v\.douyin\.com\/\w+/i);
             if (!url) {
                 throw new Error('请提供抖音视频链接');
             }
+            url = url[0];
 
             // 解析视频
             log('DOUYIN', '开始解析', { url });
