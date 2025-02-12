@@ -15,8 +15,8 @@ export class SetPromptCommand extends BaseCommand {
         }
 
         try {
-            this.modelManager.setSystemPrompt(prompt);
-            const currentModel = this.modelManager.getCurrentModel();
+            this.modelManager.setSystemPrompt(context.user_id, context.group_id, prompt);
+            const currentModel = this.modelManager.getCurrentModel(context.user_id, context.group_id);
             
             const htmlContent = `
                 <!DOCTYPE html>

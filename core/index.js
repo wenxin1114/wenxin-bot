@@ -1,9 +1,9 @@
 import { NCWebsocket } from "node-napcat-ts";
-import { Config } from "./config/index.js";
-import { CommandHandler } from "./core/CommandHandler.js";
-import { ModelManager } from "./core/ModelManager.js";
-import { TaskManager } from "./core/TaskManager.js";
-import { log, error as logError } from './utils/logger.js';
+import { Config } from "../config/index.js";
+import { CommandHandler } from "./CommandHandler.js";
+import { ModelManager } from "./ModelManager.js";
+import { TaskManager } from "./TaskManager.js";
+import { log, error as logError } from '../utils/logger.js';
 
 export class Bot {
     constructor() {

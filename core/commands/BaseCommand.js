@@ -1,5 +1,6 @@
 import { Structs } from "node-napcat-ts";
 import { log, error } from '../../utils/logger.js';
+import { AppError, errorTypes } from '../../utils/AppError.js';
 
 export class BaseCommand {
     constructor(command, description) {
@@ -24,7 +25,11 @@ export class BaseCommand {
     // 发送回复消息的辅助方法
     async sendReply(context, content, options = {}) {
         if (!this.napcat) {
-            throw new Error('napcat not initialized');
+            throw new AppError(
+                errorTypes.INIT_ERROR,
+                'napcat not initialized',
+                { command: this.command }
+            );
         }
 
         const message = [];
@@ -102,7 +107,17 @@ export class BaseCommand {
                 group_id: context.group_id,
                 message_type: message.map(m => m.type).join(',')
             });
-            throw err;
+
+            throw new AppError(
+                errorTypes.COMMAND_ERROR,
+                '消息发送失败',
+                {
+                    command: this.command,
+                    userId: context.user_id,
+                    groupId: context.group_id,
+                    originalError: err.message
+                }
+            );
         }
     }
 } 

@@ -6,7 +6,7 @@ import { log, error } from '../utils/logger.js';
 import { getHotSearch, generateHotSearchImage } from '../api/hotSearch.js';
 import { generateMenuImage } from '../api/menuImage.js';
 import { createCommands } from './commands/index.js';
-import { AppError, errorTypes } from '../utils/errorHandler.js';
+import { AppError, errorTypes } from '../utils/AppError.js';
 
 export class CommandHandler {
   constructor(napcat, modelManager, config) {
@@ -46,28 +46,29 @@ export class CommandHandler {
     try {
       // 查找匹配的命令
       const handler = this.commands.find(cmd => cmd.matches(command));
-      if (handler) {
-        await handler.execute(args, context);
-        return true;
-      } else {
-        // 没有匹配的命令
-        log('COMMAND', '没有匹配的命令', {
-          command,
-          args,
-          context: {
-            group_id: context.group_id,
-            user_id: context.user_id,
-            message_id: context.message_id,
-            sender: context.sender?.card || context.sender?.nickname
-          }
-        });
+      if (!handler) {
+        return false;
       }
-      return false;
+
+      await handler.execute(args, context);
+      return true;
     } catch (err) {
+      // 如果已经是 AppError 就直接抛出
+      if (err instanceof AppError) {
+        throw err;
+      }
+
+      // 否则包装成 AppError
       throw new AppError(
         errorTypes.COMMAND_ERROR,
-        '命令执行失败',
-        { command, error: err.message }
+        err.message || '命令执行失败',
+        {
+          command,
+          args,
+          userId: context.user_id,
+          groupId: context.group_id,
+          originalError: err.message
+        }
       );
     }
   }

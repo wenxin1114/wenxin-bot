@@ -2,6 +2,8 @@ import OpenAI from "openai";
 import { ChatHistory } from "./ChatHistory.js";
 import { CacheManager } from './CacheManager.js';
 import { log, error } from '../utils/logger.js';
+import { handleApiError } from '../utils/errorHandler.js';
+import { AppError, errorTypes } from '../utils/AppError.js';
 
 export class ModelManager {
     constructor(config) {
@@ -12,7 +14,9 @@ export class ModelManager {
             deepSeek: this.handleDeepSeekChat.bind(this)
         };
         this.chatHistory = new ChatHistory();
-        this.currentModel = 'spark';
+        
+        // 用户模型设置
+        this.userSettings = new Map();
         
         // 异步初始化
         this.initialized = this.loadState().catch(err => {
@@ -25,52 +29,109 @@ export class ModelManager {
                 error('MODEL', '自动保存状态失败', { error: err.message });
             });
         }, 5 * 60 * 1000);
+
+        // 每天凌晨3点清理过期设置
+        this.cleanupInterval = setInterval(() => {
+            const now = new Date();
+            if (now.getHours() === 3 && now.getMinutes() === 0) {
+                this.cleanupInactiveSettings().catch(err => {
+                    error('MODEL', '清理过期设置失败', { error: err.message });
+                });
+            }
+        }, 60 * 1000); // 每分钟检查一次
+    }
+
+    // 获取用户的完整设置信息
+    getUserInfo(userId, groupId) {
+        const settings = this.getUserSettings(userId, groupId);
+        const history = this.chatHistory.getHistory(userId, groupId);
+        return {
+            currentModel: settings.currentModel,
+            systemPrompts: settings.systemPrompts,
+            historyCount: history.length,
+            lastActive: new Date().toISOString()
+        };
+    }
+
+    // 获取用户设置
+    getUserSettings(userId, groupId) {
+        const key = `${userId}-${groupId}`;
+        if (!this.userSettings.has(key)) {
+            log('MODEL', '创建新用户设置', { 
+                userId, 
+                groupId,
+                defaultModel: 'spark',
+                timestamp: new Date().toISOString()
+            });
+            this.userSettings.set(key, {
+                currentModel: 'spark',
+                systemPrompts: {
+                    spark: this.config.model.spark.systemPrompt,
+                    deepSeek: this.config.model.deepSeek.systemPrompt
+                },
+                createdAt: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            });
+        } else {
+            // 更新最后活动时间
+            const settings = this.userSettings.get(key);
+            settings.lastActive = new Date().toISOString();
+        }
+        return this.userSettings.get(key);
     }
 
     async loadState() {
-        // 加载历史记录
-        const history = await this.cacheManager.loadCache('chat_history', {});
-        if (history) {
-            this.chatHistory.loadFromCache(history);
-        }
-
-        // 加载模型状态
-        const state = await this.cacheManager.loadCache('model_state', {
-            currentModel: 'spark',
-            systemPrompts: {}
-        });
-        
-        this.currentModel = state.currentModel;
-        Object.entries(state.systemPrompts).forEach(([model, prompt]) => {
-            if (this.config.model[model]) {
-                this.config.model[model].systemPrompt = prompt;
+        try {
+            // 加载历史记录
+            const history = await this.cacheManager.loadCache('chat_history', {});
+            if (history) {
+                this.chatHistory.loadFromCache(history);
             }
-        });
+
+            // 加载用户设置
+            const settings = await this.cacheManager.loadCache('user_settings', {});
+            this.userSettings.clear();
+            Object.entries(settings).forEach(([key, value]) => {
+                this.userSettings.set(key, value);
+            });
+        } catch (err) {
+            throw new AppError(
+                errorTypes.INIT_ERROR,
+                '加载状态失败',
+                {
+                    error: err.message,
+                    stack: err.stack
+                }
+            );
+        }
     }
 
     async saveState() {
         // 保存历史记录
         await this.cacheManager.saveCache('chat_history', this.chatHistory.getCache());
 
-        // 保存模型状态
-        const systemPrompts = {};
-        Object.entries(this.config.model).forEach(([model, config]) => {
-            systemPrompts[model] = config.systemPrompt;
+        // 保存用户设置
+        const settings = {};
+        this.userSettings.forEach((value, key) => {
+            settings[key] = value;
         });
-
-        await this.cacheManager.saveCache('model_state', {
-            currentModel: this.currentModel,
-            systemPrompts
-        });
+        await this.cacheManager.saveCache('user_settings', settings);
     }
 
     async handleSparkChat(message, userId, groupId) {
         try {
+            const settings = this.getUserSettings(userId, groupId);
+            log('API', '调用星火API', {
+                userId,
+                groupId,
+                messageLength: message.length
+            });
+
             const history = this.chatHistory.getHistory(userId, groupId);
             const messages = [
                 {
                     "role": "system",
-                    "content": this.config.model.spark.systemPrompt
+                    "content": settings.systemPrompts.spark
                 },
                 ...history,
                 {
@@ -93,22 +154,43 @@ export class ModelManager {
 
             const data = await response.json();
             if (!response.ok) {
+                error('API', '星火API返回错误', {
+                    userId,
+                    groupId,
+                    status: response.status,
+                    error: data.error?.message
+                });
                 throw new Error(data.error?.message || '请求失败');
             }
 
+            log('API', '星火API调用成功', {
+                userId,
+                groupId,
+                responseLength: data.choices[0].message.content.length
+            });
+
             return data.choices[0].message.content;
         } catch (err) {
-            throw new Error(`Spark API 调用失败: ${err.message}`);
+            const appError = handleApiError(err, '星火', userId, groupId);
+            error('API', '星火API调用失败', appError.details);
+            throw appError;
         }
     }
 
     async handleDeepSeekChat(message, userId, groupId) {
         try {
+            const settings = this.getUserSettings(userId, groupId);
+            log('API', '调用DeepSeek API', {
+                userId,
+                groupId,
+                messageLength: message.length
+            });
+
             const history = this.chatHistory.getHistory(userId, groupId);
             const messages = [
                 {
                     role: "system", 
-                    content: this.config.model.deepSeek.systemPrompt
+                    content: settings.systemPrompts.deepSeek
                 },
                 ...history,
                 {
@@ -132,50 +214,42 @@ export class ModelManager {
                 throw new Error('API 返回数据格式错误');
             }
 
-            return completion.choices[0].message.content;
-        } catch (error) {
-            // 更详细的错误信息
-            let errorMessage = 'DeepSeek API 调用失败';
-            if (error.response) {
-                // API 返回了错误状态码
-                const status = error.response.status;
-                const message = error.response.data?.error?.message || error.response.statusText;
-                
-                if (status === 401) {
-                    errorMessage = 'DeepSeek API 密钥无效';
-                } else if (status === 429) {
-                    errorMessage = 'DeepSeek API 调用次数超限';
-                } else {
-                    errorMessage += `: ${status} - ${message}`;
-                }
-            } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
-                errorMessage = 'DeepSeek API 请求超时';
-            } else if (error.code === 'ECONNREFUSED') {
-                errorMessage = 'DeepSeek API 连接被拒绝';
-            } else {
-                errorMessage += `: ${error.message}`;
-            }
-
-            // 添加日志记录
-            console.error('DeepSeek API Error:', {
-                error: error,
-                response: error.response?.data,
-                status: error.response?.status
+            log('API', 'DeepSeek API调用成功', {
+                userId,
+                groupId,
+                responseLength: completion.choices[0].message.content.length
             });
 
-            throw new Error(errorMessage);
+            return completion.choices[0].message.content;
+        } catch (err) {
+            const appError = handleApiError(err, 'DeepSeek', userId, groupId);
+            error('API', 'DeepSeek API调用失败', appError.details);
+            throw appError;
         }
     }
 
     async chat(message, userId, groupId) {
         try {
+            const settings = this.getUserSettings(userId, groupId);
+            log('CHAT', '开始对话', {
+                userId,
+                groupId,
+                model: settings.currentModel,
+                messageLength: message.length
+            });
+
             // 添加消息到历史记录
             this.chatHistory.addMessage(userId, groupId, 'user', message);
 
-            // 获取当前模型的处理函数
-            const handler = this.modelHandlers[this.currentModel];
+            // 获取当前用户的模型设置
+            const handler = this.modelHandlers[settings.currentModel];
+            
             if (!handler) {
-                throw new Error(`未实现的模型接口: ${this.currentModel}`);
+                throw new AppError(
+                    errorTypes.MODEL_ERROR,
+                    `未实现的模型接口: ${settings.currentModel}`,
+                    { userId, groupId, model: settings.currentModel }
+                );
             }
 
             // 调用模型处理函数
@@ -187,11 +261,53 @@ export class ModelManager {
             // 保存状态
             await this.saveState();
 
+            log('CHAT', '对话完成', {
+                userId,
+                groupId,
+                model: settings.currentModel,
+                responseLength: response.length
+            });
+
             return response;
         } catch (err) {
-            // 确保错误是字符串
-            const errorMessage = err.message || '未知错误';
-            throw new Error(errorMessage);
+            error('CHAT', '对话失败', {
+                userId,
+                groupId,
+                error: err.message,
+                errorType: err.type || 'UNKNOWN'
+            });
+
+            // 根据错误类型返回友好的错误消息
+            let userMessage = '服务器异常，请稍后重试';
+            
+            if (err instanceof AppError) {
+                switch (err.type) {
+                    case errorTypes.AUTH_ERROR:
+                        userMessage = '服务器认证失败，请联系管理员';
+                        break;
+                    case errorTypes.RATE_LIMIT_ERROR:
+                        userMessage = '接口调用次数超限，请稍后重试';
+                        break;
+                    case errorTypes.NETWORK_ERROR:
+                        userMessage = '网络连接异常，请稍后重试';
+                        break;
+                    case errorTypes.MODEL_ERROR:
+                        userMessage = '模型服务异常，请稍后重试';
+                        break;
+                    // 其他错误类型保持默认消息
+                }
+            }
+
+            throw new AppError(
+                err.type || errorTypes.MODEL_ERROR,
+                userMessage,
+                {
+                    userId,
+                    groupId,
+                    originalError: err.message,
+                    originalType: err.type
+                }
+            );
         }
     }
 
@@ -201,32 +317,55 @@ export class ModelManager {
         this.saveState();  // 保存状态
     }
 
-    getCurrentModel() {
-        return this.currentModel;
+    getCurrentModel(userId, groupId) {
+        return this.getUserSettings(userId, groupId).currentModel;
     }
 
     getAvailableModels() {
         return Object.keys(this.config.model);
     }
 
-    getSystemPrompt() {
-        return this.config.model[this.currentModel]?.systemPrompt || "你是一个智能助手";
+    getSystemPrompt(userId, groupId) {
+        const settings = this.getUserSettings(userId, groupId);
+        return settings.systemPrompts[settings.currentModel];
     }
 
-    setSystemPrompt(prompt) {
-        if (!this.currentModel) {
-            throw new Error('未选择模型');
-        }
-        this.config.model[this.currentModel].systemPrompt = prompt;
-        this.saveState();  // 保存状态
+    setSystemPrompt(userId, groupId, prompt) {
+        const settings = this.getUserSettings(userId, groupId);
+        const currentModel = settings.currentModel;
+        settings.systemPrompts[currentModel] = prompt;
+        log('MODEL', '更新系统提示词', {
+            userId,
+            groupId,
+            model: currentModel,
+            prompt: prompt.slice(0, 50) + '...'  // 只记录前50个字符
+        });
+        this.saveState();
     }
 
-    setModel(modelName) {
+    setModel(userId, groupId, modelName) {
         if (!this.config.model[modelName]) {
-            throw new Error(`未找到${modelName}模型`);
+            throw new AppError(
+                errorTypes.VALIDATION_ERROR,
+                `未找到${modelName}模型`,
+                {
+                    userId,
+                    groupId,
+                    modelName,
+                    availableModels: Object.keys(this.config.model)
+                }
+            );
         }
-        this.currentModel = modelName;
-        this.saveState();  // 保存状态
+        const settings = this.getUserSettings(userId, groupId);
+        const oldModel = settings.currentModel;
+        settings.currentModel = modelName;
+        log('MODEL', '切换模型', {
+            userId,
+            groupId,
+            from: oldModel,
+            to: modelName
+        });
+        this.saveState();
     }
 
     // 添加一个等待初始化完成的方法
@@ -234,9 +373,39 @@ export class ModelManager {
         await this.initialized;
     }
 
-    // 添加清理方法
+    // 修改 cleanup 方法
     async cleanup() {
         clearInterval(this.autoSaveInterval);
+        clearInterval(this.cleanupInterval);
         await this.saveState();
+    }
+
+    // 清理超过指定天数未活动的用户设置
+    async cleanupInactiveSettings(days = 30) {
+        const now = new Date();
+        let cleanCount = 0;
+        
+        for (const [key, settings] of this.userSettings.entries()) {
+            const lastActive = new Date(settings.lastActive);
+            const diffDays = (now - lastActive) / (1000 * 60 * 60 * 24);
+            
+            if (diffDays > days) {
+                this.userSettings.delete(key);
+                cleanCount++;
+                
+                const [userId, groupId] = key.split('-');
+                log('MODEL', '清理过期设置', {
+                    userId,
+                    groupId,
+                    lastActive: settings.lastActive,
+                    inactiveDays: Math.floor(diffDays)
+                });
+            }
+        }
+        
+        if (cleanCount > 0) {
+            await this.saveState();
+            log('MODEL', '完成清理过期设置', { cleanCount });
+        }
     }
 } 

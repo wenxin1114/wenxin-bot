@@ -15,7 +15,7 @@ export class SwitchModelCommand extends BaseCommand {
         }
 
         try {
-            this.modelManager.setModel(modelName);
+            this.modelManager.setModel(context.user_id, context.group_id, modelName);
             
             const htmlContent = `
                 <!DOCTYPE html>

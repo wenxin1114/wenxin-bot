@@ -15,9 +15,9 @@ export class ModelCommand extends BaseCommand {
     async execute(args, context) {
         try {
             // 只显示当前模型状态
-            const currentModel = this.modelManager.getCurrentModel();
+            const currentModel = this.modelManager.getCurrentModel(context.user_id, context.group_id);
             const availableModels = this.modelManager.getAvailableModels();
-            const currentSystemPrompt = this.modelManager.getSystemPrompt();
+            const systemPrompt = this.modelManager.getSystemPrompt(context.user_id, context.group_id);
 
             const htmlContent = `
                 <!DOCTYPE html>
@@ -114,9 +114,9 @@ export class ModelCommand extends BaseCommand {
                                     <div class="model-item">${model}</div>
                                 `).join('')}
                             </div>
-                            ${currentSystemPrompt ? `
+                            ${systemPrompt ? `
                                 <div class="prompt">
-                                    系统提示词：${currentSystemPrompt}
+                                    系统提示词：${systemPrompt}
                                 </div>
                             ` : ''}
                         </div>

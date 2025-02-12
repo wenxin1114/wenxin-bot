@@ -35,8 +35,7 @@ export class Config {
     validateConfig() {
         const requiredEnvVars = [
             'NAPCAT_ACCESS_TOKEN',
-            'BOT_MASTER',
-            'SPARK_API_KEY'
+            'BOT_MASTER'
         ];
 
         const missing = requiredEnvVars.filter(key => !process.env[key]);
