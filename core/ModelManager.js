@@ -402,9 +402,22 @@ export class ModelManager {
 
     // 修改 cleanup 方法
     async cleanup() {
-        clearInterval(this.autoSaveInterval);
-        clearInterval(this.cleanupInterval);
-        await this.saveState();
+        try {
+            // 清理定时器
+            clearInterval(this.autoSaveInterval);
+            clearInterval(this.cleanupInterval);
+            
+            // 最后保存一次状态
+            await this.saveState();
+            
+            log('MODEL', '清理完成');
+        } catch (err) {
+            error('MODEL', '清理失败', {
+                error: err.message,
+                stack: err.stack
+            });
+            throw err;
+        }
     }
 
     // 清理超过指定天数未活动的用户设置

@@ -72,8 +72,41 @@ export class Bot {
 
     async handleShutdown() {
         log('SYSTEM', '正在关闭机器人...');
-        this.taskManager.stopAllTasks();
-        await this.napcat.disconnect();
+        try {
+            // 停止所有定时任务
+            this.taskManager.stopAllTasks();
+            // 使用统一的清理方法
+            await this.cleanup();
+        } catch (err) {
+            logError('SYSTEM', '关闭失败', {
+                error: err.message,
+                stack: err.stack
+            });
+        }
         process.exit(0);
+    }
+
+    async cleanup() {
+        try {
+            log('BOT', '开始清理资源');
+            
+            // 清理模型管理器
+            if (this.modelManager) {
+                await this.modelManager.cleanup();
+            }
+
+            // 断开 napcat 连接
+            if (this.napcat) {
+                await this.napcat.disconnect();
+            }
+
+            log('BOT', '资源清理完成');
+        } catch (err) {
+            logError('BOT', '资源清理失败', {
+                error: err.message,
+                stack: err.stack
+            });
+            throw err;
+        }
     }
 }
