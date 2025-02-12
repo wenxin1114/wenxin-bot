@@ -124,21 +124,26 @@ export class ModelManager {
             log('API', '调用星火API', {
                 userId,
                 groupId,
-                messageLength: message.length
+                messageLength: message.length,
+                systemPrompt: settings.systemPrompts.spark
             });
 
             const history = this.chatHistory.getHistory(userId, groupId);
-            const messages = [
-                {
+            const messages = [];
+
+            // 如果有系统提示词，添加到消息列表开头
+            if (settings.systemPrompts.spark) {
+                messages.push({
                     "role": "system",
                     "content": settings.systemPrompts.spark
-                },
-                ...history,
-                {
-                    "role": "user",
-                    "content": message
-                }
-            ];
+                });
+            }
+
+            // 添加历史消息和当前消息
+            messages.push(...history, {
+                "role": "user",
+                "content": message
+            });
 
             const response = await fetch('https://spark-api-open.xf-yun.com/v1/chat/completions', {
                 method: 'POST',
@@ -183,21 +188,26 @@ export class ModelManager {
             log('API', '调用DeepSeek API', {
                 userId,
                 groupId,
-                messageLength: message.length
+                messageLength: message.length,
+                systemPrompt: settings.systemPrompts.deepSeek
             });
 
             const history = this.chatHistory.getHistory(userId, groupId);
-            const messages = [
-                {
-                    role: "system", 
+            const messages = [];
+
+            // 如果有系统提示词，添加到消息列表开头
+            if (settings.systemPrompts.deepSeek) {
+                messages.push({
+                    role: "system",
                     content: settings.systemPrompts.deepSeek
-                },
-                ...history,
-                {
-                    role: "user", 
-                    content: message
-                }
-            ];
+                });
+            }
+
+            // 添加历史消息和当前消息
+            messages.push(...history, {
+                role: "user",
+                content: message
+            });
 
             const openai = new OpenAI({
                 baseURL: 'https://api.deepseek.com',
@@ -333,14 +343,30 @@ export class ModelManager {
     setSystemPrompt(userId, groupId, prompt) {
         const settings = this.getUserSettings(userId, groupId);
         const currentModel = settings.currentModel;
-        settings.systemPrompts[currentModel] = prompt;
-        log('MODEL', '更新系统提示词', {
-            userId,
-            groupId,
-            model: currentModel,
-            prompt: prompt.slice(0, 50) + '...'  // 只记录前50个字符
-        });
-        this.saveState();
+        const oldPrompt = settings.systemPrompts[currentModel];
+
+        // 只有当提示词真的改变时才清空历史
+        if (oldPrompt !== prompt) {
+            settings.systemPrompts[currentModel] = prompt;
+            
+            // 清空该用户的聊天记录
+            this.chatHistory.clearHistory(userId, groupId);
+            
+            log('MODEL', '更新系统提示词并清空历史', {
+                userId,
+                groupId,
+                model: currentModel,
+                prompt: prompt.slice(0, 50) + '...'  // 只记录前50个字符
+            });
+            
+            this.saveState();
+            
+            // 返回一个提示信息
+            return '提示词已更新，历史对话已清空';
+        }
+        
+        // 如果提示词没有改变，返回 null 表示无变化
+        return null;
     }
 
     setModel(userId, groupId, modelName) {
@@ -359,6 +385,7 @@ export class ModelManager {
         const settings = this.getUserSettings(userId, groupId);
         const oldModel = settings.currentModel;
         settings.currentModel = modelName;
+        
         log('MODEL', '切换模型', {
             userId,
             groupId,

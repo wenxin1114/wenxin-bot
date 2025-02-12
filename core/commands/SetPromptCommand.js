@@ -15,7 +15,7 @@ export class SetPromptCommand extends BaseCommand {
         }
 
         try {
-            this.modelManager.setSystemPrompt(context.user_id, context.group_id, prompt);
+            const message = this.modelManager.setSystemPrompt(context.user_id, context.group_id, prompt);
             const currentModel = this.modelManager.getCurrentModel(context.user_id, context.group_id);
             
             const htmlContent = `
@@ -86,6 +86,13 @@ export class SetPromptCommand extends BaseCommand {
                             padding-top: 8px;
                             border-top: 1px solid #e8f0fe;
                         }
+                        .message {
+                            color: #202124;
+                            font-size: 13px;
+                            line-height: 1.4;
+                            padding-top: 8px;
+                            border-top: 1px solid #e8f0fe;
+                        }
                     </style>
                 </head>
                 <body>
@@ -93,6 +100,7 @@ export class SetPromptCommand extends BaseCommand {
                         <div class="status">设置成功</div>
                         <div class="model">当前模型：${currentModel}</div>
                         <div class="prompt">${prompt}</div>
+                        ${message ? `<div class="message">${message}</div>` : ''}
                     </div>
                 </body>
                 </html>
